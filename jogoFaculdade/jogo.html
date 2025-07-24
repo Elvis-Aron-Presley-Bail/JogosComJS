@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Missão Reciclagem</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+      background-image: url('./imagemFundo.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    h1 {
+      margin-top: 20px;
+      color: #333;
+    }
+
+    #game {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      margin: 30px auto;
+      width: 90%;
+      max-width: 800px;
+      flex-wrap: wrap;
+    }
+
+    .lixeira {
+      width: 120px;
+      height: 160px;
+      border-radius: 10px;
+      background-size: cover;
+      background-position: center;
+    }
+
+    #azul {
+      background-image: url('./Lixeira_Azul.png');
+    }
+    #vermelha {
+      background-image: url('./Lixeira_Vermelha.png');
+    }
+    #verde {
+      background-image: url('./Lixeira_Verde.png');
+    }
+    #amarela {
+      background-image: url('./Lixeira_Amarela.png');
+    }
+
+    #lixos {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      margin-top: 30px;
+      flex-wrap: wrap;
+      max-width: 900px;
+    }
+
+    .lixo {
+      width: 72px;
+      height: 72px;
+      background-color: aqua;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: grab;
+      padding: 5px;
+      text-align: center;
+      border: 2px solid green;
+    }
+
+    #placar {
+      margin-top: 30px;
+      font-size: 22px;
+      font-weight: bold;
+      color: #222;
+    }
+
+    #botao-musica {
+      margin-top: 20px;
+      padding: 12px 24px;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      background-color: #4caf50;
+      color: white;
+      transition: background-color 0.3s;
+    }
+
+    #botao-musica:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <h1>Aprendendo a Reciclar</h1>
+  <div id="game">
+    <div id="azul" class="lixeira" ondrop="soltar(event)" ondragover="permitirSoltar(event)"></div>
+    <div id="vermelha" class="lixeira" ondrop="soltar(event)" ondragover="permitirSoltar(event)"></div>
+    <div id="verde" class="lixeira" ondrop="soltar(event)" ondragover="permitirSoltar(event)"></div>
+    <div id="amarela" class="lixeira" ondrop="soltar(event)" ondragover="permitirSoltar(event)"></div>
+  </div>
+
+  <div id="lixos">
+    <div class="lixo" id="papel1" draggable="true" ondragstart="arrastar(event)" data-tipo="azul">Folha de papel</div>
+    <div class="lixo" id="plastico1" draggable="true" ondragstart="arrastar(event)" data-tipo="vermelha">Garrafa plástica</div>
+    <div class="lixo" id="vidro1" draggable="true" ondragstart="arrastar(event)" data-tipo="verde">Pote de vidro</div>
+    <div class="lixo" id="metal1" draggable="true" ondragstart="arrastar(event)" data-tipo="amarela">Lata de refrigerante</div>
+    <div class="lixo" id="papel2" draggable="true" ondragstart="arrastar(event)" data-tipo="azul">Revista velha</div>
+    <div class="lixo" id="vidro2" draggable="true" ondragstart="arrastar(event)" data-tipo="verde">Copo de vidro</div>
+    <div class="lixo" id="plastico2" draggable="true" ondragstart="arrastar(event)" data-tipo="vermelha">Sacola plástica</div>
+    <div class="lixo" id="metal2" draggable="true" ondragstart="arrastar(event)" data-tipo="amarela">Fio de alumínio</div>
+    <div class="lixo" id="papel3" draggable="true" ondragstart="arrastar(event)" data-tipo="azul">Caixa de papelão</div>
+    <div class="lixo" id="vidro3" draggable="true" ondragstart="arrastar(event)" data-tipo="verde">Garrafa de vidro</div>
+  </div>
+
+  <div id="placar">Pontos: <span id="pontos">0</span></div>
+
+  <button id="botao-musica" onclick="alternarMusica()">Ativar Música</button>
+
+  <audio id="som-acerto" src="./somAcerto.mp3"></audio>
+  <audio id="som-erro" src="./somErro.mp3"></audio>
+  <audio id="musica-fundo" src="./musicaFundo.mp3" loop></audio>
+
+  <script>
+    let pontos = 0;
+    let musicaIniciada = false;
+    const musicaFundo = document.getElementById("musica-fundo");
+
+    function iniciarMusica() {
+      if (!musicaIniciada) {
+        musicaFundo.play().then(() => {
+          document.getElementById("botao-musica").textContent = "Desligar Música";
+        }).catch(e => console.log("Erro ao tocar música:", e));
+        musicaIniciada = true;
+      }
+    }
+
+    function alternarMusica() {
+      const botao = document.getElementById("botao-musica");
+      if (!musicaIniciada || musicaFundo.paused) {
+        musicaFundo.play().then(() => {
+          musicaIniciada = true;
+          botao.textContent = "Desligar Música";
+        }).catch(e => console.log("Erro ao tocar música:", e));
+      } else {
+        musicaFundo.pause();
+        botao.textContent = "Ativar Música";
+      }
+    }
+
+    function arrastar(ev) {
+      iniciarMusica();
+      ev.dataTransfer.setData("text", ev.target.id);
+    }
+
+    function permitirSoltar(ev) {
+      ev.preventDefault();
+    }
+
+    function soltar(ev) {
+      ev.preventDefault();
+      const id = ev.dataTransfer.getData("text");
+      const item = document.getElementById(id);
+      const tipoCorreto = item.getAttribute('data-tipo');
+
+      const lixeira = ev.currentTarget;
+      const idLixeira = lixeira.id;
+
+      const somAcerto = document.getElementById("som-acerto");
+      const somErro = document.getElementById("som-erro");
+
+      if (tipoCorreto === idLixeira) {
+        pontos += 10;
+        item.remove();
+        somAcerto.currentTime = 0;
+        somAcerto.play();
+      } else {
+        pontos -= 5;
+        somErro.currentTime = 0;
+        somErro.play();
+      }
+      document.getElementById("pontos").textContent = pontos;
+    }
+  </script>
+</body>
+</html>
